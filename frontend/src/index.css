@@ -1,0 +1,78 @@
+@import "tailwindcss";
+
+:root {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  color-scheme: light;
+
+  /* Surface System */
+  --bg-canvas: #f1f5f9;
+  --bg-surface: #ffffff;
+  --bg-surface-subtle: #f8fafc;
+  --bg-surface-elevated: #ffffff;
+
+  /* High-Contrast Typography System */
+  --text-primary: #0f172a;       /* Deep Charcoal Near-Black for maximum readability */
+  --text-secondary: #334155;     /* Dark Slate for clear supporting body text */
+  --text-tertiary: #64748b;      /* Slate for labels & timestamps */
+  --text-muted: #94a3b8;         /* Placeholders and inactive elements */
+
+  /* Structural Borders */
+  --border-default: #cbd5e1;     /* Clear structural boundary */
+  --border-subtle: #e2e8f0;      /* Subtle internal row dividers */
+  --border-strong: #94a3b8;      /* High-emphasis card & focus boundaries */
+
+  /* Semantic Feature Identities */
+  --primary: #4f46e5;
+  --primary-hover: #4338ca;
+  --primary-soft: #eef2ff;
+
+  --feature-extract: #2563eb;    /* Blue */
+  --feature-transcript: #0891b2; /* Cyan/Teal */
+  --feature-stats: #7c3aed;      /* Purple */
+  --feature-visual: #ea580c;     /* Orange */
+  --feature-metadata: #0284c7;   /* Sky Blue */
+  --feature-storage: #059669;    /* Emerald */
+  --feature-compare: #e11d48;    /* Rose */
+
+  /* Status Colors (Accessible Backgrounds + Dark Text) */
+  --status-success-bg: #ecfdf5;
+  --status-success-text: #065f46;
+  --status-success-border: #a7f3d0;
+
+  --status-warning-bg: #fffbeb;
+  --status-warning-text: #92400e;
+  --status-warning-border: #fde68a;
+
+  --status-danger-bg: #fef2f2;
+  --status-danger-text: #991b1b;
+  --status-danger-border: #fecaca;
+
+  --status-info-bg: #eff6ff;
+  --status-info-text: #1e40af;
+  --status-info-border: #bfdbfe;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: var(--bg-canvas);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom High-Contrast Reading Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+::-webkit-scrollbar-track {
+  background: #e2e8f0;
+}
+::-webkit-scrollbar-thumb {
+  background: #94a3b8;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
