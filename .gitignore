@@ -1,0 +1,116 @@
+# Video Intelligence Lab Root Gitignore
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+
+# Virtual environments
+.venv/
+venv/
+env/
+backend/.venv/
+runtimes/**/.venv/
+
+# Node
+node_modules/
+frontend/node_modules/
+frontend/dist/
+dist/
+dist-ssr/
+*.tsbuildinfo
+
+# Local databases
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.db.bak
+data/*
+!data/.gitkeep
+
+# Environment, credentials, tokens, cookies, secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
+.secrets
+hf_token
+.huggingface
+cookies.txt
+*.cookies
+*.cookie
+
+# Project storage outputs (keep directory structure, ignore runtime contents)
+storage/temp/*
+!storage/temp/.gitkeep
+storage/cache/*
+!storage/cache/.gitkeep
+storage/thumbnails/*
+!storage/thumbnails/.gitkeep
+storage/frames/*
+!storage/frames/.gitkeep
+storage/transcripts/*
+!storage/transcripts/.gitkeep
+storage/metadata/*
+!storage/metadata/.gitkeep
+storage/reports/*
+!storage/reports/.gitkeep
+storage/saved_videos/*
+!storage/saved_videos/.gitkeep
+storage/audio/*
+!storage/audio/.gitkeep
+storage/models/*
+!storage/models/.gitkeep
+
+# Generated / downloaded media
+*.mp4
+*.webm
+*.mkv
+*.avi
+*.mov
+*.m4v
+*.mp3
+*.wav
+*.m4a
+*.ogg
+*.flac
+*.aac
+
+# ASR / model weights
+*.bin
+*.pt
+*.pth
+*.onnx
+*.safetensors
+*.gguf
+*.ckpt
+*.h5
+*.npz
+
+# Logs
+logs/*
+!logs/.gitkeep
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+Desktop.ini
