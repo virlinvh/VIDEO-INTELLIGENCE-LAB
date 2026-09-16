@@ -1,6 +1,7 @@
 import os
+import time
 from pathlib import Path
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from backend.app.config import settings
 from backend.app.schemas.storage import StorageCategoryInfo, StorageOverviewResponse
 
@@ -12,8 +13,30 @@ def format_bytes(size: int) -> str:
     return f"{size:.2f} PB"
 
 class StorageService:
-    @staticmethod
-    def get_dir_stats(path: Path) -> tuple[int, int]:
+    _cached_overview: Optional[StorageOverviewResponse] = None
+    _cached_time: float = 0.0
+    _cache_ttl_seconds: float = 60.0
+
+    _dir_stats_cache: Dict[str, tuple[int, int, float]] = {}
+
+    @classmethod
+    def invalidate_cache(cls):
+        cls._cached_overview = None
+        cls._cached_time = 0.0
+
+    @classmethod
+    def get_dir_stats(cls, path: Path) -> tuple[int, int]:
+        p_str = str(path.resolve())
+        now = time.time()
+        
+        # Check cache
+        if p_str in cls._dir_stats_cache:
+            size, count, ts = cls._dir_stats_cache[p_str]
+            # Static runtimes cache for 1 hour; other dirs cache for 30s
+            ttl = 3600.0 if "runtimes" in p_str else 30.0
+            if (now - ts) < ttl:
+                return size, count
+
         total_size = 0
         file_count = 0
         if path.exists() and path.is_dir():
@@ -22,16 +45,28 @@ class StorageService:
                     if f == ".gitkeep":
                         continue
                     fp = os.path.join(root, f)
-                    if os.path.isfile(fp):
+                    try:
                         total_size += os.path.getsize(fp)
                         file_count += 1
+                    except OSError:
+                        continue
         elif path.exists() and path.is_file():
-            total_size = os.path.getsize(path)
-            file_count = 1
+            try:
+                total_size = os.path.getsize(path)
+                file_count = 1
+            except OSError:
+                total_size = 0
+                file_count = 0
+
+        cls._dir_stats_cache[p_str] = (total_size, file_count, now)
         return total_size, file_count
 
     @classmethod
-    def get_overview(cls) -> StorageOverviewResponse:
+    def get_overview(cls, force_refresh: bool = False) -> StorageOverviewResponse:
+        now = time.time()
+        if not force_refresh and cls._cached_overview is not None and (now - cls._cached_time) < cls._cache_ttl_seconds:
+            return cls._cached_overview
+
         cats = [
             ("database", "data/app.db", settings.data_root / "app.db", False),
             ("metadata", "storage/metadata", settings.metadata_path, False),
@@ -74,9 +109,13 @@ class StorageService:
             is_regeneratable=False
         )
 
-        return StorageOverviewResponse(
+        overview = StorageOverviewResponse(
             total_size_bytes=total_bytes,
             total_size_human=format_bytes(total_bytes),
             categories=cat_infos,
             saved_video_library=saved_vid_info
         )
+
+        cls._cached_overview = overview
+        cls._cached_time = now
+        return overview

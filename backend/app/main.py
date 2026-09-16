@@ -1,3 +1,4 @@
+# Video Intelligence Lab Backend
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -101,3 +102,5 @@ app.add_middleware(
 )
 
 app.include_router(api_router)
+# Phase 5.3D: Segment Script Metrics enabled
+

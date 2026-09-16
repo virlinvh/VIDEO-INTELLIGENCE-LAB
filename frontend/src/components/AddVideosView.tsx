@@ -56,23 +56,33 @@ export function AddVideosView({ onOpenVideo }: Props) {
     return () => clearTimeout(timer);
   }, [urlInput]);
 
-  // Poll active jobs
+  // Smart bounded job polling: only poll actively (every 2.5s) if there are in-progress jobs
   useEffect(() => {
+    let timer: any = null;
+
     async function fetchJobs() {
       try {
         const res = await fetch('/api/v1/jobs?limit=20');
         if (res.ok) {
-          const data = await res.json();
+          const data: Job[] = await res.json();
           setJobs(data);
+
+          const hasActive = data.some(j => 
+            ['QUEUED', 'VALIDATING', 'EXTRACTING_METADATA', 'GETTING_CAPTIONS', 'PROCESSING_TRANSCRIPT', 'ACQUIRING_AUDIO', 'PREPARING_AUDIO', 'TRANSCRIBING_LOCAL_ASR'].includes(j.state)
+          );
+          // If active jobs exist, schedule next poll soon; if idle, wait longer (15s)
+          timer = setTimeout(fetchJobs, hasActive ? 2500 : 15000);
         }
       } catch (err) {
         console.error('Failed to fetch jobs:', err);
+        timer = setTimeout(fetchJobs, 15000);
       }
     }
 
     fetchJobs();
-    const interval = setInterval(fetchJobs, 2000);
-    return () => clearInterval(interval);
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, []);
 
   const handleSubmit = async () => {
