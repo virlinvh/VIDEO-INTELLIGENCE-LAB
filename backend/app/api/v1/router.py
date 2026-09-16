@@ -53,3 +53,7 @@ api_router.include_router(jobs_router)
 api_router.include_router(videos_router)
 api_router.include_router(comparisons_router, prefix="/comparisons", tags=["Comparisons"])
 api_router.include_router(transcription_router)
+
+from backend.app.api.v1.videos import get_frame_image
+api_router.add_api_route("/frames/{frame_id}/image", get_frame_image, methods=["GET"], tags=["Videos"], include_in_schema=False)
+

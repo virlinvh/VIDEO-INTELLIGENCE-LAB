@@ -299,14 +299,16 @@ export interface ComparisonVideoItem {
   title: string;
   platform: string;
   duration_seconds: number;
-  creator_name?: string;
-  thumbnail_url?: string;
+  creator_name?: string | null;
+  thumbnail_url?: string | null;
 }
 
 export interface ComparisonSavedItem {
   id: string;
   title: string;
+  notes?: string | null;
   created_at: string;
+  updated_at?: string | null;
   videos: ComparisonVideoItem[];
 }
 
@@ -316,7 +318,7 @@ export interface MetricMatrixCell {
   normalized_per_min?: number | null;
   is_min: boolean;
   is_max: boolean;
-  status: 'AVAILABLE' | 'NOT_ANALYZED' | 'UNAVAILABLE';
+  status: 'AVAILABLE' | 'NOT_ANALYZED' | 'UNAVAILABLE' | 'NOT_APPLICABLE';
 }
 
 export interface MetricMatrixRow {
@@ -340,9 +342,17 @@ export interface NormalizedTimelinePoint {
   }>;
 }
 
+export interface TimelineEventItem {
+  timestamp: number;
+  normalized_position_pct: number;
+  formatted_time: string;
+  duration_seconds?: number | null;
+}
+
 export interface WordFrequencyItem {
   word: string;
   count: number;
+  occurrences_per_thousand: number;
 }
 
 export interface NGramItem {
@@ -356,13 +366,24 @@ export interface VideoVocabularyProfile {
   total_words: number;
   unique_words: number;
   ttr: number;
+  top_words: WordFrequencyItem[];
   signature_words: WordFrequencyItem[];
   top_bigrams: NGramItem[];
   top_trigrams: NGramItem[];
+  top_fourgrams: NGramItem[];
+  repeated_phrases: NGramItem[];
 }
 
 export interface SharedVocabularyItem {
   word: string;
+  counts: Record<string, number>;
+  total_count: number;
+  video_count: number;
+  occurrences_per_thousand_avg: number;
+}
+
+export interface SharedPhraseItem {
+  phrase: string;
   counts: Record<string, number>;
   total_count: number;
   video_count: number;
@@ -372,15 +393,46 @@ export interface OpeningClosingSnippet {
   video_id: string;
   title: string;
   duration_seconds: number;
+  first_sentence?: string | null;
+  first_3s_text?: string | null;
+  first_5s_text?: string | null;
+  first_10s_text?: string | null;
   opening_text?: string | null;
   opening_duration_sec: number;
   opening_word_count: number;
   opening_wpm: number;
+  opening_questions: number;
+  words_in_first_5s: number;
+  words_in_first_10s: number;
+  final_sentence?: string | null;
+  last_5s_text?: string | null;
+  last_10s_text?: string | null;
   closing_text?: string | null;
   closing_duration_sec: number;
   closing_word_count: number;
   closing_wpm: number;
   status: string;
+}
+
+export interface KeyframeGalleryItem {
+  position_pct: number;
+  label: string;
+  frame_id?: string | null;
+  timestamp?: number | null;
+  file_path?: string | null;
+  image_url?: string | null;
+  width?: number | null;
+  height?: number | null;
+  status: string;
+}
+
+export interface OCREvidenceItem {
+  video_id: string;
+  video_title: string;
+  timestamp: number;
+  formatted_time: string;
+  detected_text: string;
+  confidence: number;
 }
 
 export interface CreatorAggregateMetrics {
@@ -395,6 +447,10 @@ export interface CreatorAggregateMetrics {
   mean_cut_rate_per_min?: number | null;
   total_views?: number | null;
   mean_views?: number | null;
+  total_likes?: number | null;
+  mean_likes?: number | null;
+  total_comments?: number | null;
+  mean_comments?: number | null;
   video_ids: string[];
 }
 
@@ -406,7 +462,17 @@ export interface VideoComparisonSummary {
   creator_name?: string | null;
   thumbnail_url?: string | null;
   published_at?: string | null;
+  views?: number | null;
+  likes?: number | null;
+  comments?: number | null;
+  like_view_ratio?: number | null;
+  comment_view_ratio?: number | null;
   has_transcript: boolean;
+  transcript_language?: string | null;
+  transcript_source?: string | null;
+  requested_language?: string | null;
+  asr_model?: string | null;
+  is_generated?: boolean | null;
   has_script_metrics: boolean;
   has_visual_metrics: boolean;
 }
@@ -415,10 +481,16 @@ export interface MultiVideoComparisonResult {
   videos: VideoComparisonSummary[];
   matrix: MetricMatrixRow[];
   timeline_deciles: NormalizedTimelinePoint[];
+  timeline_events: Record<string, TimelineEventItem[]>;
   shared_vocabulary: SharedVocabularyItem[];
+  shared_phrases: SharedPhraseItem[];
   video_vocabularies: Record<string, VideoVocabularyProfile>;
   openings_closings: OpeningClosingSnippet[];
+  keyframe_gallery: Record<string, KeyframeGalleryItem[]>;
+  ocr_evidence: OCREvidenceItem[];
   creator_aggregates: CreatorAggregateMetrics[];
+  has_mixed_languages: boolean;
+  detected_languages: string[];
   generated_at: string;
 }
 
@@ -485,3 +557,81 @@ export interface TranscriptionSettings {
   default_model_malayalam?: string;
   allow_multilingual_fallback: boolean;
 }
+
+export type SegmentRangeType = 'ENTIRE' | 'ABSOLUTE' | 'RELATIVE' | 'OPENING' | 'CLOSING';
+
+export interface SegmentRangeRequest {
+  type: SegmentRangeType;
+  start_seconds?: number | null;
+  end_seconds?: number | null;
+  start_percent?: number | null;
+  end_percent?: number | null;
+  duration_seconds?: number | null;
+}
+
+export interface SegmentComparisonRequest {
+  video_ids: string[];
+  range: SegmentRangeRequest;
+}
+
+export interface TranscriptSegmentItem {
+  id: string;
+  sequence_index: number;
+  start_time: number;
+  end_time: number;
+  duration: number;
+  text: string;
+  word_count: number;
+  formatted_start_time: string;
+}
+
+export interface SegmentScriptMetrics {
+  word_count: number;
+  segment_count: number;
+  sentence_count: number;
+  unique_words: number;
+  lexical_diversity: number; // TTR %
+  average_sentence_length: number;
+  question_count: number;
+  exclamation_count: number;
+  filler_count: number;
+  transition_count: number;
+  repeated_phrase_count: number;
+  range_wpm: number | null;
+  effective_duration_seconds: number | null;
+}
+
+export interface VideoSegmentComparisonItem {
+  video_id: string;
+  title: string;
+  creator_name?: string | null;
+  platform: string;
+  thumbnail_url?: string | null;
+  duration_seconds?: number | null;
+  requested_transcript_language?: string | null;
+  actual_transcript_language?: string | null;
+  transcript_source?: string | null;
+  asr_model?: string | null;
+  has_transcript: boolean;
+  requested_range_label: string;
+  effective_start_seconds?: number | null;
+  effective_end_seconds?: number | null;
+  effective_duration_seconds?: number | null;
+  segments: TranscriptSegmentItem[];
+  full_text?: string | null;
+  word_count: number;
+  segment_count: number;
+  metrics?: SegmentScriptMetrics | null;
+  availability: 'AVAILABLE' | 'NOT_AVAILABLE' | 'NO_TRANSCRIPT' | 'EMPTY_RANGE';
+  warning?: string | null;
+}
+
+export interface SegmentComparisonResponse {
+  range_definition: SegmentRangeRequest;
+  videos: VideoSegmentComparisonItem[];
+  total_videos: number;
+  has_mixed_languages?: boolean;
+  detected_languages?: string[];
+  compared_at: string;
+}
+

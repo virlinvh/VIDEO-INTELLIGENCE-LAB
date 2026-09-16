@@ -1,31 +1,31 @@
 # Video Intelligence Lab Default Configuration
 
 app:
-  name: \ Video Intelligence Lab\
-  version: \0.1.0\
-  environment: \development\
-  host: \127.0.0.1\
+  name: Video Intelligence Lab
+  version: 0.1.0
+  environment: development
+  host: 127.0.0.1
   port: 8000
 
 paths:
-  storage_root: \storage\
-  data_root: \data\
-  logs_root: \logs\
-  saved_videos: \storage/saved_videos\
-  temp: \storage/temp\
-  cache: \storage/cache\
-  thumbnails: \storage/thumbnails\
-  frames: \storage/frames\
-  transcripts: \storage/transcripts\
-  metadata: \storage/metadata\
-  reports: \storage/reports\
-  models: \storage/models\
+  storage_root: storage
+  data_root: data
+  logs_root: logs
+  saved_videos: storage/saved_videos
+  temp: storage/temp
+  cache: storage/cache
+  thumbnails: storage/thumbnails
+  frames: storage/frames
+  transcripts: storage/transcripts
+  metadata: storage/metadata
+  reports: storage/reports
+  models: storage/models
 
 processing:
-  default_mode: \ANALYZE_ONLY\
+  default_mode: ANALYZE_ONLY
   max_concurrent_jobs: 2
   request_timeout_seconds: 120
-  subtitles_languages: [\en\, \en-US\, \en-GB\]
+  subtitles_languages: [en, en-US, en-GB]
 
 analysis:
   wpm_window_seconds: 15

@@ -40,16 +40,16 @@ export function VideoDetailModal({ videoId, onClose }: Props) {
   const [retranscribeError, setRetranscribeError] = useState<{ code: string; message: string; retryable?: boolean; details?: any } | null>(null);
   const [showErrorDetails, setShowErrorDetails] = useState(false);
 
+  const [rawLoading, setRawLoading] = useState(false);
+
   const loadData = async () => {
     try {
-      const [vRes, tRes, rRes] = await Promise.all([
+      const [vRes, tRes] = await Promise.all([
         fetch(`/api/v1/videos/${videoId}`).then(r => r.ok ? r.json() : null),
         fetch(`/api/v1/videos/${videoId}/transcript`).then(r => r.ok ? r.json() : null),
-        fetch(`/api/v1/videos/${videoId}/raw`).then(r => r.ok ? r.json() : null),
       ]);
       setVideo(vRes);
       setTranscript(tRes);
-      setRawData(rRes);
     } catch (err) {
       console.error('Failed to load video details:', err);
     } finally {
@@ -60,6 +60,18 @@ export function VideoDetailModal({ videoId, onClose }: Props) {
   useEffect(() => {
     loadData();
   }, [videoId]);
+
+  // Lazy-load raw data only when the 'raw' tab is chosen and not already loaded
+  useEffect(() => {
+    if (activeTab === 'raw' && !rawData && !rawLoading) {
+      setRawLoading(true);
+      fetch(`/api/v1/videos/${videoId}/raw`)
+        .then(r => r.ok ? r.json() : null)
+        .then(data => setRawData(data))
+        .catch(err => console.error('Failed to load raw data:', err))
+        .finally(() => setRawLoading(false));
+    }
+  }, [activeTab, videoId, rawData, rawLoading]);
 
   const handleRetranscribe = async () => {
     setRetranscribing(true);

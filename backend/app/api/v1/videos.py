@@ -391,10 +391,15 @@ async def get_frame_image(frame_id: str, db: AsyncSession = Depends(get_db_sessi
     if not f:
         raise HTTPException(status_code=404, detail="Frame record not found")
 
-    full_path = settings.project_root / f.file_path
+    file_p = Path(f.file_path)
+    if not file_p.is_absolute():
+        full_path = settings.project_root / file_p
+    else:
+        full_path = file_p
+
     # Path traversal protection
     try:
-        full_path.resolve().relative_to(settings.frames_path.resolve())
+        full_path.resolve().relative_to(settings.project_root.resolve())
     except ValueError:
         raise HTTPException(status_code=403, detail="Access denied")
 
